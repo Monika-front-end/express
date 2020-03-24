@@ -1,7 +1,31 @@
 doctype html
+//- deklaracja mixina
+mixin item(title,url)
+  li(class='list-item')  
+    //- a(href=url)=title
+    //- a(href=url class=path == url ? 'active' : '')=title
+    a(href=url class=`item ${path == url ? 'active' : ''}`)=title 
+    //- to jest taka alternatywa, że mozna było dac też jakąśklase  wtym przypadku klasę item dla a oprócz dodtakowej klasy active
 html
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
+    link(rel='stylesheet', href='/stylesheets/style.css') 
+    //- Czyli menu robimy w postaci listy za pomocą tagu ul, czyli w body jako jego rodzica definiujemy ul, deklarujemy li, czyli pierwszy element listy, a następnie a, jako parametry, będziemy definiowac sobie atrybuty htmlom, czyli href="/news" (linkujemy do newsa, następnie piszemy to co będzie się znajdowało w naszym znaczniku tagu a, czyli będą to Aktualności. Podobnie robimy z pozostałymi linkami.
+  body 
+    nav
+      ul
+        //- Jak tak otrzymamy takiego mixina to jest juz gotowy mixin, który jeszcze sobie rozwiniemy o porównywanie tego aktualnego patha. Usuwamy wtedy swoją strukturę z body i wywołujemy tego mixina
+
+        //- li
+        //-   a(href="/") Strona główna
+        //- li
+        //-  a(href="/news") Aktualności
+        //- li
+        //-  a(href="/quiz") Quiz li a(href="/admin") Admin
+
+        +item('Strona główna','/')
+        +item('Aktualności','/news')
+        +item('Quiz','/quiz')
+        +item('Admin','/admin')
+
     block content

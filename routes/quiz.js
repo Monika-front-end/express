@@ -3,7 +3,7 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Express' });
+  res.render('quiz', { title: 'Quiz' }); //Zmieniamy tytuł na Quiz i nazwę templatki na quiz.
 });
 
 module.exports = router;
