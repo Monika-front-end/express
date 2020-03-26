@@ -1,8 +1,16 @@
 var createError = require('http-errors'); //zaimportowana biblioteka błedów http, które w dalszej części skryptu będziemy przechwytywali
+var cookieSession = require('cookie-session'); //import biblioteki cookie-session
 var express = require('express'); //import expresu
 var path = require('path'); //import path do pobierania ścieżek, w tym przypadku będzie nam to słuzyło do pobierania ścieżki public, w której mamy nasze asety strony
 var cookieParser = require('cookie-parser'); //biblioteka która będzie nas wspierała w parsowaniu cookisów które będzie generował serwer. Cookisy będą  w naszym projekcie nie używane, ale zostawimy sobie tę bibliotekę, bo w większości naszych projektów na pewno bęziemy wykorzystywali cookisy
 var logger = require('morgan'); //loger z biblioteki morgan, słuzy nam on do zrzucania logów w trybie deweloperskim
+var config = require('./config');
+var mongoose = require('mongoose');
+
+mongoose.connect(config.db, { useNewUrlParser: true });
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
 
 //przechodzimy do kodu który będziemy sobie  odyfikowali i rozwijali. Mamy tutaj dwa importy naszego routingu z katalogu routes. Jest to import strony startowej i import przykładowej strony użytkownika
 var indexRouter = require('./routes/index');
@@ -22,6 +30,19 @@ app.use(express.json()); //przechwytywanie naszego body. W tym przypadku nie bę
 app.use(express.urlencoded({ extended: false })); //parsowanie formularzy. W tym przypadku będziemy wysyłali dane w formularzu postem na nasze requesty i ten zapis spowoduje nam automatyczne też tego sparsowanie i będziemy to wykorzystywali za pomocą obiektu w naszym requeście
 app.use(cookieParser()); //używanie biblioteki do cookieparsera, który mówiłem że nie bedizemy wykorzystywali w tym projekcie, ale zostawmy to na przyszłosć
 app.use(express.static(path.join(__dirname, 'public'))); //deklarujemy nasz katalog statyczny, katalog z naszymi asetami. Asety to są np pliki javascriptowe, które są ładowane po stronie klienta, nie nodowe. Mmay tu w katalogu public  np pliki styli. Są tez obrazki. Ale w katalogu aset będziemy deklarowali wszystko to co bedzie publicznie dostępne po stronie przeglądarki dla naszego użytkownika
+
+//dodanie biblioteki cookie-session
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: config.keySession,
+    /* secret keys */
+    //to jest klucz który będzie nam podpisywał sesję, przez co będzie ona trudniejsza do podmiany
+
+    // Cookie Options
+    maxAge: config.maxAgeSession // 24 hours - maksymalny czs przechowywania cookisa, czyli po czasie po jakim on wygaśnie
+  })
+);
 
 //Teraz przechodzimy do app.js i dodamy sobie taką nowość która oferuje nam express. Utworzymy sobie funkcję, która będzie routem, takim trochę uproszczonym routem, a mianowicie będzie pobierała z parametru request, czyli z tego co serwer dostaje na wejście aktualny adres strony i ten adres strony będziemy przekazywali do każdego naszego widoku, czyli pobieramy, pzrypisujemy zmienną, która będzie przekazywana do wszystkich widoków i puszcamy scypt dalej. Zeby puścić scrypt dalej, wykorzystamy sobie wspomniana wcześniej metodę next. Metoda next pozwoli nam na to że scrypt nie zatrzyma nam się na tym routingu, bo ten routing będzie wywoływany zawsze, ale puści nas do pozostałych routigów. Czyli jeżeli będziemy na adresie news, najpierw nam się wywołą nasz routing, który teraz będziemy pisali, a następnie dzięki temu że wywołą next on przejdzie do naszego już zadeklarowanego routingu. Więc uzywamy app.use i w app.use będziemy przekazywali callback i tak jak w pozostałych routingach pierwszy parametr request, drugi parametr response, następnie jest next, czyli 3 parametry. Następnie wyprintujemy sobie to co znajduje się w req.path, poniewaz pod request.path, czyli pod pierwszym parametrem callbacku znajduje się aktualny adres strony i powinniśmy go zobaczyc na konsoli. Ale tak to nam się zawiesi serwer. Aby przeszedł dalej musimy dopisać next(). I weryfikujemy i jest ok.
 app.use(function(req, res, next) {
