@@ -18,6 +18,7 @@ var indexRouter = require('./routes/index');
 var newsRouter = require('./routes/news');
 var quizRouter = require('./routes/quiz');
 var adminRouter = require('./routes/admin');
+var apiRouter = require('./routes/api');
 
 var app = express(); //uruchamiamy nasz server, czyli wywołujemy funkcję express
 
@@ -57,6 +58,7 @@ app.use('/', indexRouter); //deklaracja za pomocą samego slasha że będzie on 
 app.use('/news', newsRouter);
 app.use('/quiz', quizRouter);
 app.use('/admin', adminRouter);
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler. Przechwytywanie błędów. Jest to catcher który będzie nam wyłapywał adresy które nie istnieją za pomoca createError z biblioteki http errors
 app.use(function(req, res, next) {
